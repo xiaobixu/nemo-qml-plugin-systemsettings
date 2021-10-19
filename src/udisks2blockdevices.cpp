@@ -147,10 +147,6 @@ QStringList BlockDevices::devicePaths(const QStringList &dbusObjectPaths) const
 
 bool BlockDevices::createBlockDevice(const QString &dbusObjectPath, const InterfacePropertyMap &interfacePropertyMap)
 {
-    if (!BlockDevices::isExternal(dbusObjectPath)) {
-        updatePopulatedCheck();
-        return false;
-    }
 
     return doCreateBlockDevice(dbusObjectPath, interfacePropertyMap);
 }
@@ -231,8 +227,8 @@ bool BlockDevices::populated() const
 
 bool BlockDevices::isExternal(const QString &dbusObjectPath)
 {
-    static const QRegularExpression externalBlockDevice(QStringLiteral("^/org/freedesktop/UDisks2/block_devices/%1$").arg(externalDevice));
-    return externalBlockDevice.match(dbusObjectPath).hasMatch();
+    Block *maybeRemoveable = find(dbusObjectPath);
+    return maybeRemoveable->isExternal();
 }
 
 void BlockDevices::blockCompleted()
